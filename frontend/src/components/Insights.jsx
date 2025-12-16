@@ -35,7 +35,7 @@ function Insights({ apiUrl }) {
 
   return (
     <div>
-      <h2 style={{ marginBottom: '20px', color: '#333' }}>💡 AI-Powered Insights</h2>
+      <h2 className='tab-title'>💡 AI-Powered Insights</h2>
       
       {insights.length === 0 ? (
         <div className="empty-state">

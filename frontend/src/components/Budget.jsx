@@ -48,8 +48,8 @@ function Budget({ apiUrl, stats }) {
   }
 
   return (
-    <div style={{ background: 'white', padding: '20px', borderRadius: '12px' }}>
-      <h2 style={{ marginBottom: '20px', color: '#333' }}>🎯 Budget Management</h2>
+    <div className="budget-container">
+      <h2 className="budget-title">🎯 Budget Management</h2>
 
       <div className="budget-section">
         <h3>Set Monthly Budget</h3>
@@ -63,12 +63,7 @@ function Budget({ apiUrl, stats }) {
               onChange={(e) => setInputBudget(e.target.value)}
               placeholder="Enter monthly budget"
               required
-              style={{ 
-                padding: '12px', 
-                border: '2px solid #e0e0e0', 
-                borderRadius: '8px',
-                flex: 1
-              }}
+              className="budget-input"
             />
             <button type="submit" className="btn btn-primary">
               Update Budget
@@ -96,63 +91,33 @@ function Budget({ apiUrl, stats }) {
 
           <div className="chart-card">
             <h3>Budget Progress</h3>
-            <div style={{ padding: '20px' }}>
-              <div style={{
-                width: '100%',
-                height: '40px',
-                background: '#f0f0f0',
-                borderRadius: '20px',
-                overflow: 'hidden',
-                position: 'relative'
-              }}>
-                <div style={{
-                  width: `${Math.min(budgetUsed, 100)}%`,
-                  height: '100%',
-                  background: budgetUsed > 90 ? 'linear-gradient(90deg, #f093fb 0%, #f5576c 100%)' : 
-                              budgetUsed > 70 ? 'linear-gradient(90deg, #ffd89b 0%, #f6a93d 100%)' :
-                              'linear-gradient(90deg, #4facfe 0%, #00f2fe 100%)',
-                  transition: 'width 0.5s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 'bold'
-                }}>
+            <div className="budget-progress-container">
+              <div className="progress-bar-container">
+                <div 
+                  className={`progress-bar ${
+                    budgetUsed > 90 ? 'danger' : 
+                    budgetUsed > 70 ? 'warning' : 
+                    'success'
+                  }`}
+                  style={{ width: `${Math.min(budgetUsed, 100)}%` }}
+                >
                   {budgetUsed > 10 && `${budgetUsed.toFixed(1)}%`}
                 </div>
               </div>
               
-              <div style={{ marginTop: '20px', display: 'grid', gap: '10px' }}>
+              <div className="budget-alerts">
                 {budgetUsed > 100 && (
-                  <div style={{ 
-                    padding: '15px', 
-                    background: '#fee', 
-                    borderRadius: '8px', 
-                    color: '#c33',
-                    fontWeight: '500' 
-                  }}>
+                  <div className="alert alert-danger">
                     ⚠️ You've exceeded your budget by ₹{Math.abs(remaining).toFixed(2)}!
                   </div>
                 )}
                 {budgetUsed > 90 && budgetUsed <= 100 && (
-                  <div style={{ 
-                    padding: '15px', 
-                    background: '#fff4e6', 
-                    borderRadius: '8px', 
-                    color: '#e67700',
-                    fontWeight: '500' 
-                  }}>
+                  <div className="alert alert-warning">
                     ⚡ Warning: You're approaching your budget limit!
                   </div>
                 )}
                 {budgetUsed > 0 && budgetUsed <= 70 && (
-                  <div style={{ 
-                    padding: '15px', 
-                    background: '#e6f7f1', 
-                    borderRadius: '8px', 
-                    color: '#00a854',
-                    fontWeight: '500' 
-                  }}>
+                  <div className="alert alert-success">
                     ✅ Great job! You're well within your budget.
                   </div>
                 )}
@@ -161,22 +126,22 @@ function Budget({ apiUrl, stats }) {
           </div>
         </>
       ) : (
-        <div className="chart-card" style={{ marginTop: '20px' }}>
+        <div className="chart-card">
           <div className="empty-state">
             <p>📊 Set a monthly budget above to start tracking your spending!</p>
           </div>
         </div>
       )}
 
-      <div className="chart-card" style={{ marginTop: '30px' }}>
+      <div className="chart-card budget-tips">
         <h3>💡 Budget Tips</h3>
-        <div style={{ padding: '20px', lineHeight: '1.8' }}>
-          <ul style={{ paddingLeft: '20px' }}>
-            <li style={{ marginBottom: '10px' }}>Set a realistic budget based on your income and essential expenses</li>
-            <li style={{ marginBottom: '10px' }}>Try the 50/30/20 rule: 50% needs, 30% wants, 20% savings</li>
-            <li style={{ marginBottom: '10px' }}>Review and adjust your budget monthly based on spending patterns</li>
-            <li style={{ marginBottom: '10px' }}>Use budget alerts to stay on track throughout the month</li>
-            <li style={{ marginBottom: '10px' }}>Build an emergency fund covering 3-6 months of expenses</li>
+        <div className="tips-content">
+          <ul>
+            <li>Set a realistic budget based on your income and essential expenses</li>
+            <li>Try the 50/30/20 rule: 50% needs, 30% wants, 20% savings</li>
+            <li>Review and adjust your budget monthly based on spending patterns</li>
+            <li>Use budget alerts to stay on track throughout the month</li>
+            <li>Build an emergency fund covering 3-6 months of expenses</li>
           </ul>
         </div>
       </div>

@@ -6,6 +6,7 @@ import Insights from './Insights';
 import Budget from './Budget';
 import Profile from './Profile';
 import Chat from './Chat';
+import Subscription from './Subscription';
 
 function Dashboard({ username, onLogout, apiUrl }) {
   const [activeTab, setActiveTab] = useState('transactions');
@@ -13,6 +14,54 @@ function Dashboard({ username, onLogout, apiUrl }) {
   const [stats, setStats] = useState({ totalIncome: 0, totalExpenses: 0, balance: 0 });
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [subscription, setSubscription] = useState(null);
+  const [darkMode, setDarkMode] = useState(true);
+
+  useEffect(() => {
+    fetchSubscriptionStatus();
+    fetchDarkModeSetting();
+  }, []);
+
+  useEffect(() => {
+    fetchTransactions();
+    fetchStats();
+  }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, [darkMode]);
+
+  const fetchSubscriptionStatus = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/subscription/status`);
+      setSubscription(response.data);
+    } catch (error) {
+      console.error('Error fetching subscription:', error);
+    }
+  };
+
+  const fetchDarkModeSetting = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/settings`);
+      setDarkMode(response.data.darkMode);
+    } catch (error) {
+      console.error('Error fetching dark mode setting:', error);
+    }
+  };
+
+  const toggleDarkMode = async () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    try {
+      await axios.put(`${apiUrl}/settings/dark-mode`, { darkMode: newDarkMode });
+    } catch (error) {
+      console.error('Error updating dark mode:', error);
+    }
+  };
 
   const fetchTransactions = async () => {
     try {
@@ -35,11 +84,6 @@ function Dashboard({ username, onLogout, apiUrl }) {
       console.error('Error fetching stats:', error);
     }
   };
-
-  useEffect(() => {
-    fetchTransactions();
-    fetchStats();
-  }, [startDate, endDate]);
 
   const handleAddTransaction = async (transaction) => {
     try {
@@ -66,11 +110,29 @@ function Dashboard({ username, onLogout, apiUrl }) {
     setEndDate('');
   };
 
+  const isPro = subscription?.subscription_plan === 'pro';
+
+  const handleRestrictedTabClick = (tab) => {
+    if (!isPro && (tab === 'analytics' || tab === 'insights' || tab === 'chat')) {
+      alert('This feature is only available for Pro subscribers. Please upgrade to access it.');
+      return;
+    }
+    setActiveTab(tab);
+  };
+
   return (
     <div className="dashboard">
       <div className="dashboard-header">
         <h1>💰 Zero Da</h1>
         <div className="user-info">
+          <button 
+            className="btn btn-icon"
+            onClick={toggleDarkMode}
+            title="Toggle Dark Mode"
+          >
+            {darkMode ? '☀️' : '🌙'}
+          </button>
+          <span className="plan-badge-small">{isPro ? '⭐ PRO' : '🆓 FREE'}</span>
           <span>Welcome, {username}!</span>
           <button className="btn btn-secondary" onClick={onLogout}>
             Logout
@@ -101,16 +163,16 @@ function Dashboard({ username, onLogout, apiUrl }) {
           📝 Transactions
         </button>
         <button
-          className={`tab ${activeTab === 'analytics' ? 'active' : ''}`}
-          onClick={() => setActiveTab('analytics')}
+          className={`tab ${activeTab === 'analytics' ? 'active' : ''} ${!isPro ? 'locked' : ''}`}
+          onClick={() => handleRestrictedTabClick('analytics')}
         >
-          📊 Analytics
+          📊 Analytics {!isPro && '🔒'}
         </button>
         <button
-          className={`tab ${activeTab === 'insights' ? 'active' : ''}`}
-          onClick={() => setActiveTab('insights')}
+          className={`tab ${activeTab === 'insights' ? 'active' : ''} ${!isPro ? 'locked' : ''}`}
+          onClick={() => handleRestrictedTabClick('insights')}
         >
-          💡 Insights
+          💡 Insights {!isPro && '🔒'}
         </button>
         <button
           className={`tab ${activeTab === 'budget' ? 'active' : ''}`}
@@ -119,10 +181,16 @@ function Dashboard({ username, onLogout, apiUrl }) {
           🎯 Budget
         </button>
         <button
-          className={`tab ${activeTab === 'chat' ? 'active' : ''}`}
-          onClick={() => setActiveTab('chat')}
+          className={`tab ${activeTab === 'chat' ? 'active' : ''} ${!isPro ? 'locked' : ''}`}
+          onClick={() => handleRestrictedTabClick('chat')}
         >
-          🤖 AI Chat
+          🤖 AI Chat {!isPro && '🔒'}
+        </button>
+        <button
+          className={`tab ${activeTab === 'subscription' ? 'active' : ''}`}
+          onClick={() => setActiveTab('subscription')}
+        >
+          💳 Subscription
         </button>
         <button
           className={`tab ${activeTab === 'profile' ? 'active' : ''}`}
@@ -194,11 +262,11 @@ function Dashboard({ username, onLogout, apiUrl }) {
         </>
       )}
 
-      {activeTab === 'analytics' && (
+      {activeTab === 'analytics' && isPro && (
         <Analytics apiUrl={apiUrl} categoryBreakdown={stats.categoryBreakdown} />
       )}
 
-      {activeTab === 'insights' && (
+      {activeTab === 'insights' && isPro && (
         <Insights apiUrl={apiUrl} />
       )}
 
@@ -206,8 +274,12 @@ function Dashboard({ username, onLogout, apiUrl }) {
         <Budget apiUrl={apiUrl} stats={stats} />
       )}
 
-      {activeTab === 'chat' && (
+      {activeTab === 'chat' && isPro && (
         <Chat apiUrl={apiUrl} />
+      )}
+
+      {activeTab === 'subscription' && (
+        <Subscription apiUrl={apiUrl} />
       )}
 
       {activeTab === 'profile' && (

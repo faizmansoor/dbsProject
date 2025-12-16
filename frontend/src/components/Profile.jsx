@@ -52,7 +52,7 @@ function Profile({ apiUrl }) {
 
   return (
     <div>
-      <h2 style={{ marginBottom: '20px', color: '#333' }}>👤 Profile</h2>
+      <h2 className='tab-title'>👤 Profile</h2>
 
       <div className="chart-card">
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '30px' }}>

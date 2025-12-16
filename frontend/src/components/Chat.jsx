@@ -67,7 +67,7 @@ function Chat({ apiUrl }) {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ color: '#333' }}>🤖 AI Financial Assistant</h2>
+        <h2 className="tab-title">🤖 AI Financial Assistant</h2>
         <button className="btn btn-secondary" onClick={clearHistory}>
           Clear History
         </button>

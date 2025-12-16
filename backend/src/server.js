@@ -5,6 +5,8 @@ import { initDatabase } from './config/db.js';
 import authRoutes from './routes/auth.js';
 import transactionRoutes from './routes/transactions.js';
 import chatRoutes from './routes/chat.js';
+import subscriptionRoutes from './routes/subscription.js';
+import settingsRoutes from './routes/settings.js';
 
 dotenv.config();
 
@@ -20,6 +22,8 @@ const startServer = async () => {
   app.use('/api/auth', authRoutes);
   app.use('/api/transactions', transactionRoutes);
   app.use('/api/chat', chatRoutes);
+  app.use('/api/subscription', subscriptionRoutes);
+  app.use('/api/settings', settingsRoutes);
 
   app.get('/health', (req, res) => {
     res.json({ status: 'OK' });

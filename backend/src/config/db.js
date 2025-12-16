@@ -28,6 +28,11 @@ export const initDatabase = async () => {
         profile_picture TEXT,
         phone VARCHAR(20),
         monthly_budget DECIMAL(10, 2) DEFAULT 0,
+        subscription_plan ENUM('free', 'pro') DEFAULT 'free',
+        subscription_status ENUM('active', 'cancelled', 'expired') DEFAULT 'active',
+        subscription_start_date TIMESTAMP NULL,
+        subscription_end_date TIMESTAMP NULL,
+        dark_mode BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
@@ -60,6 +65,23 @@ export const initDatabase = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         INDEX idx_user_created (user_id, created_at)
+      )
+    `);
+
+    // Subscription payments table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS subscription_payments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        plan ENUM('free', 'pro') NOT NULL,
+        amount DECIMAL(10, 2) NOT NULL,
+        payment_method VARCHAR(50),
+        transaction_id VARCHAR(255),
+        upi_id VARCHAR(255),
+        status ENUM('pending', 'completed', 'failed') DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        INDEX idx_user_payment (user_id, created_at)
       )
     `);
 
