@@ -21,4 +21,4 @@ A comprehensive expense tracking application with JWT authentication, MySQL data
 
 ---
 
-**Made by gaurav mishra, gaurav sr, faiz mansoor**
+**Made by gsr, gaurav mishra, faiz mansoor**
