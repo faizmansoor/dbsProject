@@ -4,6 +4,8 @@ import TransactionForm from './TransactionForm';
 import Analytics from './Analytics';
 import Insights from './Insights';
 import Budget from './Budget';
+import Profile from './Profile';
+import Chat from './Chat';
 
 function Dashboard({ username, onLogout, apiUrl }) {
   const [activeTab, setActiveTab] = useState('transactions');
@@ -116,6 +118,18 @@ function Dashboard({ username, onLogout, apiUrl }) {
         >
           🎯 Budget
         </button>
+        <button
+          className={`tab ${activeTab === 'chat' ? 'active' : ''}`}
+          onClick={() => setActiveTab('chat')}
+        >
+          🤖 AI Chat
+        </button>
+        <button
+          className={`tab ${activeTab === 'profile' ? 'active' : ''}`}
+          onClick={() => setActiveTab('profile')}
+        >
+          👤 Profile
+        </button>
       </div>
 
       {activeTab === 'transactions' && (
@@ -190,6 +204,14 @@ function Dashboard({ username, onLogout, apiUrl }) {
 
       {activeTab === 'budget' && (
         <Budget apiUrl={apiUrl} stats={stats} />
+      )}
+
+      {activeTab === 'chat' && (
+        <Chat apiUrl={apiUrl} />
+      )}
+
+      {activeTab === 'profile' && (
+        <Profile apiUrl={apiUrl} />
       )}
     </div>
   );

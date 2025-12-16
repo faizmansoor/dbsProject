@@ -13,8 +13,9 @@ function Budget({ apiUrl, stats }) {
   const fetchBudget = async () => {
     try {
       const response = await axios.get(`${apiUrl}/auth/budget`);
-      setMonthlyBudget(response.data.monthlyBudget);
-      setInputBudget(response.data.monthlyBudget);
+      const budget = parseFloat(response.data.monthlyBudget) || 0;
+      setMonthlyBudget(budget);
+      setInputBudget(budget.toString());
       setLoading(false);
     } catch (error) {
       console.error('Error fetching budget:', error);
@@ -25,8 +26,9 @@ function Budget({ apiUrl, stats }) {
   const handleUpdateBudget = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${apiUrl}/auth/budget`, { monthlyBudget: parseFloat(inputBudget) });
-      setMonthlyBudget(parseFloat(inputBudget));
+      const budgetValue = parseFloat(inputBudget) || 0;
+      await axios.put(`${apiUrl}/auth/budget`, { monthlyBudget: budgetValue });
+      setMonthlyBudget(budgetValue);
       alert('Budget updated successfully!');
     } catch (error) {
       console.error('Error updating budget:', error);
@@ -37,8 +39,16 @@ function Budget({ apiUrl, stats }) {
   const budgetUsed = monthlyBudget > 0 ? (stats.totalExpenses / monthlyBudget) * 100 : 0;
   const remaining = monthlyBudget - stats.totalExpenses;
 
+  if (loading) {
+    return (
+      <div className="empty-state">
+        <p>Loading budget information...</p>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div style={{ background: 'white', padding: '20px', borderRadius: '12px' }}>
       <h2 style={{ marginBottom: '20px', color: '#333' }}>🎯 Budget Management</h2>
 
       <div className="budget-section">
@@ -48,11 +58,17 @@ function Budget({ apiUrl, stats }) {
             <input
               type="number"
               step="0.01"
+              min="0"
               value={inputBudget}
               onChange={(e) => setInputBudget(e.target.value)}
               placeholder="Enter monthly budget"
-              className="form-group input"
-              style={{ padding: '12px', border: '2px solid #e0e0e0', borderRadius: '8px' }}
+              required
+              style={{ 
+                padding: '12px', 
+                border: '2px solid #e0e0e0', 
+                borderRadius: '8px',
+                flex: 1
+              }}
             />
             <button type="submit" className="btn btn-primary">
               Update Budget
@@ -61,7 +77,7 @@ function Budget({ apiUrl, stats }) {
         </form>
       </div>
 
-      {monthlyBudget > 0 && (
+      {monthlyBudget > 0 ? (
         <>
           <div className="stats-grid">
             <div className="stat-card">
@@ -102,7 +118,7 @@ function Budget({ apiUrl, stats }) {
                   color: 'white',
                   fontWeight: 'bold'
                 }}>
-                  {budgetUsed.toFixed(1)}%
+                  {budgetUsed > 10 && `${budgetUsed.toFixed(1)}%`}
                 </div>
               </div>
               
@@ -129,7 +145,7 @@ function Budget({ apiUrl, stats }) {
                     ⚡ Warning: You're approaching your budget limit!
                   </div>
                 )}
-                {budgetUsed <= 70 && (
+                {budgetUsed > 0 && budgetUsed <= 70 && (
                   <div style={{ 
                     padding: '15px', 
                     background: '#e6f7f1', 
@@ -144,6 +160,12 @@ function Budget({ apiUrl, stats }) {
             </div>
           </div>
         </>
+      ) : (
+        <div className="chart-card" style={{ marginTop: '20px' }}>
+          <div className="empty-state">
+            <p>📊 Set a monthly budget above to start tracking your spending!</p>
+          </div>
+        </div>
       )}
 
       <div className="chart-card" style={{ marginTop: '30px' }}>

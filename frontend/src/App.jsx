@@ -6,14 +6,22 @@ import Dashboard from './components/Dashboard';
 
 const API_URL = 'http://localhost:5000/api';
 
+// Set token immediately on app load
+const storedToken = localStorage.getItem('token');
+if (storedToken) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+}
+
 function App() {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(storedToken);
   const [username, setUsername] = useState(localStorage.getItem('username'));
   const [view, setView] = useState('login');
 
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
     }
   }, [token]);
 

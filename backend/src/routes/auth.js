@@ -68,6 +68,45 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Get user profile
+router.get('/profile', authenticateToken, async (req, res) => {
+  try {
+    const [users] = await pool.query(
+      'SELECT id, username, email, name, bio, profile_picture, phone, monthly_budget, created_at FROM users WHERE id = ?',
+      [req.user.id]
+    );
+    
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(users[0]);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update user profile
+router.put('/profile', authenticateToken, async (req, res) => {
+  try {
+    const { name, bio, profile_picture, phone } = req.body;
+
+    await pool.query(
+      'UPDATE users SET name = ?, bio = ?, profile_picture = ?, phone = ? WHERE id = ?',
+      [name, bio, profile_picture, phone, req.user.id]
+    );
+
+    const [users] = await pool.query(
+      'SELECT id, username, email, name, bio, profile_picture, phone, monthly_budget FROM users WHERE id = ?',
+      [req.user.id]
+    );
+
+    res.json(users[0]);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 router.get('/budget', authenticateToken, async (req, res) => {
   try {
     const [users] = await pool.query('SELECT monthly_budget FROM users WHERE id = ?', [req.user.id]);
